@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<head>
+    <link href="static/bootstrap.min.css" rel="stylesheet">
+    <script src="static/jquery-2.0.3.min.js"></script>
+    <script src="static/bootstrap.min.js"></script>
+    <script src="static/underscore-min.js"></script>
+    <script src="static/backbone-min.js"></script>
+    <script src="static/handlebars.js"></script>
+    <script src="static/sockjs-0.3.min.js"></script>
+    <script src="static/script.js"></script>
+    <script id="buttons_template" type="text/x-handlebars-template">
+        {{#each ajax_collection}}
+            <tr class="response_tr" data-id="{{id}}">
+                <td>{{id}}</td>
+                <td>{{url}}</td>
+                <td>{{time}}</td>
+                <td>{{method}}</td>
+                <td>{{status_code}}</td>
+                <td>
+                    <button type="button" class="btn btn-success show_debug_toolbar" data-id="{{id}}">Activate</button>
+                </td>
+            </tr>
+            <tr class="response_tr" data-id="{{id}}">
+                <td></td>
+                <td colspan="5">
+                    <div class="panel-group" id="accordion{{@index}}">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion{{@index}}" href="#collapseOne{{@index}}">Show/hide response</a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne{{@index}}" class="panel-collapse collapse">
+                                <div class="panel-body response" data-id="{{id}}">
+                                    {{response}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {{/each}}
+    </script>
+</head>
+<body>
+    <div class="row">
+        <div class="col-lg-offset-1 col-lg-9">
+            <div class="page-header">
+                <h1>Profile <small>your django ajax requests!</small></h1>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Url</th>
+                        <th>Time</th>
+                        <th>Method</th>
+                        <th>Error code</th>
+                        <th>Debug toolbar</th>
+                    </tr>
+                </thead>
+                <tbody id="content"></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="toolbar"></div>
+</body>
+</html>
