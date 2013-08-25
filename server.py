@@ -1,6 +1,8 @@
 #coding: utf-8
+from os.path import join, normpath, dirname
 import time
 import thread
+# import threading
 import pickle
 import logging
 import zmq
@@ -8,6 +10,9 @@ import Queue
 import tornado.ioloop
 import tornado.web
 from sockjs.tornado import SockJSConnection, SockJSRouter
+
+PROJECT_ROOT = normpath(dirname(__file__))
+STATIC_ROOT = join(PROJECT_ROOT, 'static')
 
 
 class IndexHandler(tornado.web.RequestHandler):
@@ -42,9 +47,10 @@ def tornado_thread():
 
     logging.getLogger().setLevel(logging.DEBUG)
 
-    static_path = '/home/hellpain/dev/remote-django-debug-toolbar/static/'
     app = tornado.web.Application(
-        [(r"/", IndexHandler), ] + BroadcastRouter.urls + [(r'(.*)', tornado.web.StaticFileHandler, {'path': static_path}),]
+        [(r"/", IndexHandler), ] +
+        BroadcastRouter.urls +
+        [(r'(.*)', tornado.web.StaticFileHandler, {'path': STATIC_ROOT})]
     )
     app.listen(8080)
 
@@ -63,7 +69,6 @@ def zeromq_thread():
     while True:
         try:
             data = pickle.loads(socket.recv())
-            print data
             message_queue.put(data)
             socket.send('ok')
         except Exception as e:
@@ -74,7 +79,9 @@ message_queue = None
 if __name__ == '__main__':
     message_queue = Queue.Queue()
     thread.start_new_thread(tornado_thread, ())
+    # threading.Thread(target=tornado_thread).start()
     thread.start_new_thread(zeromq_thread, ())
+    # threading.Thread(target=zeromq_thread).start()
 
     while True:
-       time.sleep(1)
+        time.sleep(1)

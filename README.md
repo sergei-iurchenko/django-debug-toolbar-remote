@@ -1,4 +1,4 @@
-remote-django-debug-toolbar
+django-debug-toolbar-remote
 ===========================
 
-add`on for django-debug-toolbar for profiing of ajax requests
+add`on for django-debug-toolbar for profiling of ajax requests

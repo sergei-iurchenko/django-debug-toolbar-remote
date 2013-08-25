@@ -2,7 +2,7 @@ $ ->
   RECONNECT_TIMEOUT = 1000
   PING_TIMEOUT = 100
 
-  AjaxDebugInfo = Backbone.Model.extend(
+  DebugModel = Backbone.Model.extend(
     defaults:
       id: undefined
       toolbar: undefined
@@ -13,24 +13,24 @@ $ ->
       method: undefined
   )
 
-  AjaxDebugInfoCollection = Backbone.Collection.extend(
-    model: AjaxDebugInfo
+  DebugCollection = Backbone.Collection.extend(
+    model: DebugModel
     comparator: (model)->
       -model.get('id')
   )
 
-  ajax_collection = new AjaxDebugInfoCollection()
+  profile_collection = new DebugCollection()
 
-  AjaxDebugInfoView = Backbone.View.extend(
+  DebugView = Backbone.View.extend(
 
     initialize: ->
       source = $('#buttons_template').html()
       @template = Handlebars.compile(source)
 
     render: ->
-      ajax_collection.sort({silent:true})
+      profile_collection.sort({silent:true})
       context =
-        ajax_collection: ajax_collection.toJSON()
+        profile_collection: profile_collection.toJSON()
       html = @template(context)
       @$el.html(html)
       @
@@ -42,12 +42,13 @@ $ ->
       dom = $(event.currentTarget)
       id = dom.data('id')
       clear_djdt_handlers()
-      $('#toolbar').html(ajax_collection.get(id).get('toolbar'))
+      $('#toolbar').html(profile_collection.get(id).get('toolbar'))
+      window.djdt.init()
       $('.response_tr').removeClass('success')
       $('.response_tr[data-id='+ id + ']').addClass('success')
   )
 
-  ajax_view = new AjaxDebugInfoView(
+  ajax_view = new DebugView(
     el: $('#content')
   )
 
@@ -71,6 +72,7 @@ $ ->
     timer = setTimeout(sendPing, PING_TIMEOUT)
 
   clear_djdt_handlers = ->
+    window?.djdt?.jQuery(document).unbind()
     window?.djdt?.jQuery('#djDebugPanelList li a').die()
     window?.djdt?.jQuery('#djDebug a.djDebugClose').die()
     window?.djdt?.jQuery('#djDebug .remoteCall').die()
@@ -83,8 +85,8 @@ $ ->
   onmessage = (e) ->
     if e.data?
       console.log e.data
-      new_model = new AjaxDebugInfo(
-        id: ajax_collection.length + 1
+      new_model = new DebugModel(
+        id: profile_collection.length + 1
         toolbar: e.data.toolbar
         response: e.data.response
         status_code: e.data.status_code
@@ -92,7 +94,7 @@ $ ->
         url: e.data.url
         method: e.data.method
       )
-      ajax_collection.push(new_model)
+      profile_collection.push(new_model)
       ajax_view.render()
       $('.show_debug_toolbar:first').click()
 
